@@ -58,7 +58,6 @@ public class Utility {
     }
 
     /**
-     *
      * 解析服务器返回的县区数据
      * */
     public static boolean handleCountyResponse(String response, int cityId){
