@@ -5,6 +5,9 @@ import android.text.TextUtils;
 import com.example.tclxa.coolweather.db.City;
 import com.example.tclxa.coolweather.db.County;
 import com.example.tclxa.coolweather.db.Province;
+import com.example.tclxa.coolweather.gson.Weather;
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +29,7 @@ public class Utility {
                     province.setProvinceName(provinceObject.getString("name"));
                     province.save();
                 }
+                // 如果查询成功返回true, 失败返回false
                 return true;
             }catch (JSONException e){
                 e.printStackTrace();
@@ -69,7 +73,7 @@ public class Utility {
                     County county = new County();
                     county.setCityId(cityId);
                     county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getInt("weather_id"));
+                    county.setWeatherId(countyObject.getString("weather_id"));
                     county.save();
                 }
                 return true;
@@ -79,4 +83,20 @@ public class Utility {
         }
         return false;
     }
+
+
+    //  将返回的json数据解析为Weather实体
+    public static Weather handleWeatherResponse(String response){
+
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent, Weather.class);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
