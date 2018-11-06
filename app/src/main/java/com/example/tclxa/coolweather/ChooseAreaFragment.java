@@ -18,12 +18,14 @@ import android.widget.Toast;
 import com.example.tclxa.coolweather.db.City;
 import com.example.tclxa.coolweather.db.County;
 import com.example.tclxa.coolweather.db.Province;
+import com.example.tclxa.coolweather.gson.Weather;
 import com.example.tclxa.coolweather.utils.HttpUtil;
 import com.example.tclxa.coolweather.utils.Utility;
 
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class ChooseAreaFragment extends Fragment {
     private ListView listView;
     private ArrayAdapter<String> adapter;
     private List<String> dataList = new ArrayList<>();
+    private String weather_id;
 
     // 省份列表
     private List<Province> provinces;
@@ -84,14 +87,23 @@ public class ChooseAreaFragment extends Fragment {
                 }else if (selectLevel == LEVEL_CITY){
                     selectCity = cities.get(position);
                     queryCounty();
-                }else if (selectLevel == LEVEL_COUNTY){
+                }else if (selectLevel == LEVEL_COUNTY) {
                     // 显示本地区天气信息
                     // 获取天气ID
-                    String weather_id = counties.get(position).getWeatherId();
-                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
-                    intent.putExtra("weather_id", weather_id);
-                    startActivity(intent);
-                    getActivity().finish();
+                    weather_id = counties.get(position).getWeatherId();
+                    if (getActivity() instanceof MainActivity) {
+                        Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                        intent.putExtra("weather_id", weather_id);
+                        startActivity(intent);
+                        getActivity().finish();
+                    } else if (getActivity() instanceof WeatherActivity) {
+                        // 重新刷新
+                        WeatherActivity weatherActivity = (WeatherActivity) getActivity();
+                        // 关闭活动菜单
+                        weatherActivity.drawerLayout.closeDrawers();
+                        weatherActivity.swipeRefreshLayout.setRefreshing(true);
+                        weatherActivity.requestWeatherData(weather_id);
+                    }
                 }
             }
         });
